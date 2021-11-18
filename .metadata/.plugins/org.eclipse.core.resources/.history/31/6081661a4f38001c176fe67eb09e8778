@@ -1,0 +1,9 @@
+# url do banco
+spring.datasource.url="jdbc:postgresql://localhost:5432/saude
+#usuário do banco
+spring.datasource.username=postgress
+#senha do banco
+spring.datasource.password=docker
+# vai criar as tabelas automaticamente
+spring.jpa.hibernate.ddl-auto=update
+
