@@ -4,6 +4,7 @@ let handleClienteSubmit = () => {
 
   let paciente
   let verbo
+  let id = document.getElementById("id").value
   if (id) {
     paciente = {
       id: document.getElementById("id").value,
@@ -45,6 +46,57 @@ let handleClienteSubmit = () => {
 
 }
 
+let handleMedicoSubmit = () => {
+  // recuperar os dados do usuário e já cria o objeto
+  // vamos utilizar programação DOM (document object model)
+
+  let medico
+  let verbo
+  let endpoint 
+  let mensagem
+  let id = document.getElementById("idMedico").value
+  if (id) {
+    medico = {
+      id: document.getElementById("idMedico").value,
+      nome: document.getElementById("nomeMedico").value,
+      crm: document.getElementById("crm").value,
+      especialidade: document.getElementById("especialidade").value,
+    }
+    console.log(JSON.stringify(medico))
+    endpoint ='http://localhost:8080/medico/'
+    verbo = 'PUT'
+    mensagem= 'Medico alterado'
+  } else {
+    medico = {
+      nome: document.getElementById("nomeMedico").value,
+      crm: document.getElementById("crm").value,
+      especialidade: document.getElementById("especialidade").value,
+    }
+    endpoint ='http://localhost:8080/medico/'
+    verbo = 'POST'
+    mensagem= 'Medico inserido'
+  }
+
+
+  if ((!medico.nome) || (!medico.crm) || (!medico.especialidade)) {
+    alert(`Campos vazios`)
+    return
+}
+
+  // vamos criar a conexão
+  let requisicao = new XMLHttpRequest()
+  // true indica que a abertura de conexão é assíncrona
+  requisicao.open(verbo, endpoint, true)
+
+  // configura o cabeçalho da requisição
+  requisicao.setRequestHeader("Content-Type", "application/json")
+  // converte json em string
+  requisicao.send(JSON.stringify(medico))
+  alert(mensagem)
+  fillTableMedico()
+
+}
+
 
 const fillTable = () => {
   //criar conexão para chamada de API
@@ -64,6 +116,25 @@ const fillTable = () => {
   req.send()
 }
 
+const fillTableMedico = () => {
+  console.log('oi')
+  //criar conexão para chamada de API
+  let req = new XMLHttpRequest()
+  req.open('GET', 'http://localhost:8080/medico', true)
+  req.onload = function () {
+    //recupeando os dados do servidor(a partir da API)
+    medicos = JSON.parse(this.response)
+    //percorrer os pacientes
+    let conteudo = ""
+    medicos.map(medicos => {
+      conteudo = conteudo + `<tr> <td> ${medicos.nome}</td> <td> ${medicos.crm}</td> <td> ${medicos.especialidade}</td> <td> <button onClick="handleDeleteMedico(${medicos.id})"> <i class="bi bi-archive-fill"></i> </button> </td> <td> <button onClick="handleEditMedico(${medicos.id}, '${medicos.nome}', '${medicos.crm}', '${medicos.especialidade}')"> <i class="bi bi-pencil-fill"></i> </button> </td> </tr>`
+  })
+    //monta a saída de dado
+    document.getElementById("conteudoTabelaMedico").innerHTML = conteudo
+  }
+  req.send()
+}
+
 
 const handleDelete = (id) => {
   let resp = confirm('Deseja excluir o paciente?')
@@ -76,15 +147,24 @@ const handleDelete = (id) => {
   }
 }
 
+const handleDeleteMedico = (id) => {
+  let resp = confirm('Deseja excluir o medico?')
+  if (resp) {
+    let req = new XMLHttpRequest()
+    req.open('DELETE', `http://localhost:8080/medico/${id}`, true)
+    req.send()
+    alert('Medico removido com sucesso')
+    fillTableMedico()
+  }
+}
 
-const handleEdit = (id, nome, cpf, peso, altura, idade) => {
+
+const handleEditMedico = (id, nome, crm, especialidade) => {
   alert('pika')
-  document.getElementById("nome").value = nome
-  document.getElementById("cpf").value = cpf
-  document.getElementById("peso").value = peso
-  document.getElementById("altura").value = altura
-  document.getElementById("idade").value = idade
+  document.getElementById("nomeMedico").value = nome
+  document.getElementById("crm").value = crm
+  document.getElementById("especialidade").value = especialidade
   //jogada de mestre
-  document.getElementById("id").value = id
+  document.getElementById("idMedico").value = id
 }
 
